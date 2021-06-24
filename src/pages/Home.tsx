@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { useHistory } from 'react-router-dom'
 
-import { auth, firebase } from '../services/firebase';
 
 import illustrationImg from '../assets/illustration.svg';
 import logoImg from '../assets/logo.svg';
@@ -10,18 +9,18 @@ import googleIconImg from '../assets/google-icon.svg';
 import '../styles/auth.scss';
 import { Button } from '../components/Button';
 
+import { useAuth } from '../hooks/useAuth';
+
 export const Home: React.FC = () => {
+  const { user, signInWithGoogle } = useAuth();
   const history = useHistory();
 
-  const handleCreateRoom = useCallback(() => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    auth.signInWithPopup(provider).then(result => {
-      console.log(result);
-    });
-
-    // history.push('/rooms/new')
-  }, [history]);
+  const handleCreateRoom = useCallback(async () => {
+    if (!user) {
+      await signInWithGoogle();
+    }
+    history.push('/rooms/new');
+  }, [history, signInWithGoogle, user]);
 
   return (<div id="page-auth">
     <aside>
