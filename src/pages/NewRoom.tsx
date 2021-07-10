@@ -4,11 +4,14 @@ import logoImg from '../assets/logo.svg';
 
 import '../styles/auth.scss';
 import { Button } from '../components/Button';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { database } from '../services/firebase';
+import { useAuth } from '../hooks/useAuth';
 
 
 export const NewRoom: React.FC = () => {
+  const { user } = useAuth();
+  const history = useHistory();
   const [newRoom, setNewRoom] = useState('');
 
   const handleCreateRoom = useCallback(async (event: FormEvent) => {
@@ -17,7 +20,14 @@ export const NewRoom: React.FC = () => {
       return;
     }
     const roomRef = database.ref('rooms');
-  }, [newRoom]);
+
+    const firebaseRoom = roomRef.push({
+      title: newRoom,
+      authorId: user?.id,
+    });
+
+    history.push(`/rooms/${firebaseRoom.key}`);
+  }, [newRoom, history, user?.id]);
 
   return (<div id="page-auth">
     <aside>
